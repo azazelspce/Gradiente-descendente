@@ -1,0 +1,290 @@
+---
+title: "Gradiente descendente usando ejemplos"
+author: "Sandoval-Pineda Cristian"
+date: "6/8/2019"
+output: 
+  bookdown::html_document2:
+    fig_caption: true
+    toc: true
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+set.seed( 5 )
+```
+
+# Función de una variable
+
+Minimizar $x$ en $x²$\
+Donde: $x \in I\!R$
+
+```{r fig.cap = cap}
+x = -11:11
+plot( x, x*x, type= "l" )
+cap = "f(x) = x²"
+
+```
+
+## Qué se necesita.
+Para encontrar un mínimo (o un máximo, en realidad es lo mismo cambiando un signo) usando *Gradiente Descendente* se necesita:\
+**1.** La función a optimizar: $f( x )$\
+**2.** La derivada (gradiente) de $f( x ) => f'( x )$\
+**3.** Un parámetro llamado *alfa* o también mal llamado *tasa de aprendizaje* para que suene cool en el contexto de *aprendizaje de máquina*.\
+**4.** Un criterio de parada.\
+**5.** Un *punto* inicial $x_0$.\
+
+## Para este simple caso se define cada item.
+**1.** La función a optimizar: $f( x )$\
+$$f( x ) = x²$$\
+**2.** La derivada (gradiente) de $f( x ) => f'( x )$\
+$$f'( x ) = 2x$$\
+**3.** Un parámetro *alfa*.\
+$$\alpha = 0.1$$\
+**4.** Un criterio de parada: **cuando se haya iterado 100 veces.**\
+**5.** Un *punto* inicial: $$x_0 = 10$$.
+
+```{r fig.cap = cap}
+plot( x, x*x, type= "l" )
+lines( x, 2*x, type= "l", col = "blue" )
+points( 10, 100, col = "red")
+cap = "**En negro**: $f(x) = x²$; **En azul**: $f'(x) = 2x$; **En rojo**: $x_0 = 10$"
+```
+
+## Se calcula el $x_{i+1}$.
+
+$$ x_1 = x_0 - \alpha*f'(x_0) $$
+$$ x_1 = 10 - 0.1 * (2*10) $$
+$$ ======> x_1 = 8 $$
+
+$$ x_2 = x_1 - \alpha*f'(x_1) $$
+$$ x_2 = 8 - 0.1 * (2*8) $$
+$$ ======> x_2 = 6.4 $$
+$$ x_3 = x_2 - \alpha*f'(x_2) $$
+$$ x_3 = 6.4 - 0.1 * (2*6.4) $$
+$$ ======> x_3 = 5.12 $$
+$$ . $$
+$$ . $$
+$$ . $$
+
+```{r fig.cap = cap}
+plot( x, x*x, type= "l" )
+lines( x, 2*x, type= "l", col = "blue" )
+points( 10, 100, col = "red" )
+points( 8, 8*8, col = "green")
+cap = "**En negro**: $f(x) = x²$; **En azul**: $f'(x) = 2x$; **En rojo**: $x_0 = 10$; **En verde**: $x_1$"
+```
+
+## Se calcula el $x_{i+1}$ hasta 100.
+```{r fig.cap = cap, results='asis'}
+x_i = c( 10 )
+x_old = 10
+for( i in 1:100 )
+{
+  x_new = x_old - 0.1 * 2 * x_old
+  x_i = c( x_i, x_new )
+  cat( sprintf( "**Iteration**: %d ======> **$x_{%d}$** = %f\\\n", i, i, x_new ) )
+  x_old = x_new
+}
+
+```
+
+```{r fig.cap = cap}
+plot( x, x*x, type= "l" )
+lines( x, 2*x, type= "l", col = "blue" )
+points( x_i, x_i**2, col = "red")
+cap = "**En negro**: $f(x) = x²$; **En azul**: $f'(x) = 2x$; **En rojo**: todos los puntos $x_i$"
+```
+
+# Función de más de una variable
+
+Minimizar $(x, y)$ en $x²+y²$\
+Donde: $x \in I\!R$, $y \in I\!R$
+
+```{r fig.cap = cap}
+require( grDevices ) # for colours
+x = -60:60
+y = -40:40
+z = outer( x**2, y**2, FUN = "+" )
+image( x, y, z )
+contour( x, y, z, col = "black", add = TRUE, method = "edge", vfont = c( "sans serif", "plain" ) )
+cap = "$f( x, y ) = x² + y²$"
+```
+
+## Para este simple caso se define cada item.
+**1.** La función a optimizar: $f( x,y )$\
+$$f( x, y ) = x² + y² = z$$\
+**2.** El gradiente de $f( x, y ) => ( \frac{\partial z}{\partial x}, \frac{\partial z}{\partial y} )$\
+$$g( x, y ) = (2x,2y)$$\
+**3.** Un parámetro *alfa*.\
+$$\alpha = 0.1$$\
+**4.** Un criterio de parada: **cuando se haya iterado 100 veces.**\
+**5.** Un *punto* inicial: $$(x_0, y_0) = (25, 35)$$.
+
+```{r fig.cap = cap}
+require( grDevices ) # for colours
+x = -60:60
+y = -40:40
+z = outer( x**2, y**2, FUN = "+" )
+image( x, y, z )
+contour( x, y, z, col = "black", add = TRUE, method = "edge", vfont = c( "sans serif", "plain" ) )
+points( 25, 35, col = "red" )
+cap = "$f( x, y ) = x² + y²$; **punto rojo**: punto inicial (x_0, y_0)"
+```
+
+## Se calcula el $(x_{i+1}, y_{i+1})$.
+
+$$ (x_1,y_1) = (x_0,y_0) - \alpha*g(x_0,y_0) $$
+$$ (x_1,y_1) = (25,35) - 0.1*(2*25,2*35) $$
+$$ (x_1,y_1) = (25,35) - 0.1*(50,70) $$
+$$ (x_1,y_1) = (20,20) - (5,7) $$
+$$ ======> (x_1,y_1) = (15,13) $$
+$$ (x_2,y_2) = (x_1,y_1) - \alpha*g(x_1,y_1) $$
+$$ (x_2,y_2) = (15,13) - 0.1*(2*15,2*13) $$
+$$ (x_2,y_2) = (15,13) - 0.1*(30,26) $$
+$$ (x_2,y_2) = (15,13) - (3,2.6) $$
+$$ ======> (x_2,y_2) = (12,10.4) $$
+$$ . $$
+$$ . $$
+$$ . $$
+
+## Se calcula el $(x_{i+1}, y_{i+1})$ hasta 100.
+```{r fig.cap = cap, results='asis'}
+x_i = c( 25 )
+y_i = c( 35 )
+x_old = 25
+y_old = 35
+for( i in 1:100 )
+{
+  x_new = x_old - 0.1 * 2 * x_old
+  y_new = y_old - 0.1 * 2 * y_old
+  x_i = c( x_i, x_new )
+  y_i = c( y_i, y_new )
+  cat( sprintf( "**Iteration**: %d ======> **$(x_{%d}, y_{%d})$** = (%f,%f)\\\n", i, i, i, x_new, y_new ) )
+  x_old = x_new
+  y_old = y_new
+}
+
+```
+
+```{r fig.cap = cap}
+require( grDevices ) # for colours
+x = -60:60
+y = -40:40
+z = outer( x**2, y**2, FUN = "+" )
+image( x, y, z )
+contour( x, y, z, col = "black", add = TRUE, method = "edge", vfont = c( "sans serif", "plain" ) )
+points( x_i, y_i, col = "red" )
+cap = "$f( x, y ) = x² + y²$; **puntos rojos**: puntos $(x_i, y_i)$"
+```
+
+# Minimizando el error de una "neurona"
+
+### Neurona simple
+Una neurona artificial tiene la forma $f( x )= \phi(\sum {(w_i*x_i)})$ donde:\
+- $x$ es un vector, $x \in I\!R^n$, llamado *vector de entrada*.\
+- $w$ es un vector, $w \in I\!R^n$, llamado *vector de pesos*.\
+- La función $\phi$ es la función llamada *función de activación* que puede ser sigmoidal, gaussiana, tangencial, entre otras.\
+
+Si se toma $x \in I\!R¹$, $w \in I\!R¹$ y $\phi(x) = tanh(x)$; entonces: $f( x ) = tanh( w * x )$.\
+
+### Conjunto de datos de *entrenamiento*
+Ahora a diferencia de los anteriores ejemplos, esta no es la función que se quiere optimizar, ya que se quiere minimizar un error que es, por lo general, la "neurona" evaluada en un conjunto de puntos de los cuales se conoce su valor esperado, por ejemplo:
+
+```{r, fig.cap = cap}
+x = seq( -2, 2, .2 )
+y = tanh( 0.673 * x ) + runif( length( x ), min = 0.03, max = 0.05 ) * ifelse( runif( length( x ), 0, 1 ) > 0.5, 1, -1 )
+print( data.frame( list( "x" = x, "y" = y ) ) )
+plot( x, y, col = "red" )
+cap = "Función a aproximar con la neurona"
+#lines( x, tanh( 0.673 * x ), col = "green" )
+```
+
+### Definiendo el problema de optimización
+Ahora, si se define el error como, el error de la neurona dado el conjunto de pesos $w$ (en este caso $w$ sólo es un escalar):
+$$Error(w) = \frac{1}{2}(y_0 - f(x_0))^2 + \frac{1}{2}(y_1 - f(x_1))^2 + \dots + \frac{1}{2}(y_n - f(x_n))^2$$
+$$Error(w) = \frac{1}{2}\sum{(y_i - f(x_i))^2}$$
+$$Error(w) = \frac{1}{2}\sum{(y_i - tanh(w*x_i))^2}$$
+
+**El problema de optimización ya puede ser definido:**\
+
+Minimizar $w$ en $\frac{1}{2}\sum{(y_i - tanh(w*x_i))^2}$\
+Donde: $w \in I\!R^1$
+
+**1.** La función a optimizar: $Error( w )$\
+$$\frac{1}{2}\sum{(y_i - tanh(w*x_i))^2}$$\
+**2.** La derivada (gradiente) de $Error( w ) => \frac{\partial Error}{\partial w}$\
+$$\frac{\partial Error}{\partial w} = -(y_0 - tanh(w*x_0))*\frac{\partial tanh( w * x_0)}{\partial w}-(y_1 - tanh(w*x_1))*\frac{\partial tanh( w * x_1)}{\partial w} \dots - (y_n - tanh(w*x_n))*\frac{\partial tanh( w * x_n)}{\partial w} $$\
+$$\frac{\partial Error}{\partial w} = -(y_0 - tanh(w*x_0))*x_0*sech²(w*x_0)-(y_1 - tanh(w*x_1))*x_1*sech²(w*x_1) \dots - (y_n - tanh(w*x_n))*x_n*sech²(w*x_n)$$\
+$$\frac{\partial Error}{\partial w} = \sum-(y_i - tanh(w*x_i))*x_i*sech²(w*x_i)$$\
+**3.** Un parámetro *alfa*.\
+$$\alpha = 1.1$$\
+**4.** Un criterio de parada: **cuando se haya iterado 35 veces.**\
+**5.** Un *punto* inicial: $$w_0 = 1$$.
+
+### Resolviendo el problema de optimización
+
+**Se calcula el $w_{i+1}$.**\
+
+$$ w_1 = w_0 - \alpha*\frac{\partial Error}{\partial w} $$
+$$ w_1 = w_0 - \alpha*\sum-(y_i - tanh(w_0*x_i))*x_i*sech²(w_0*x_i)$$
+$$ w_1 = 1 + 1*[(-0.92 - tanh(1*-10))*(-10)*sech²(1*(-10))] + 1*[(-0.928 - tanh(1*-9))*(-9)*sech²(1*(-9))]+\dots$$
+
+**Se calcula el $w_{i+1}$ hasta 100.**\
+```{r, results='asis'}
+tanh_f = function( x ) { (exp(x) - exp(-x))/(exp(x) + exp(-x)) }
+sech_f = function( x ) { 2/(exp(x) + exp(-x)) }
+
+Gradient = function( w )
+{
+  sum = 0
+  for( i in 1:length( x ) )
+  {
+    sum = -( y[i] - tanh_f( w * x[i] ) )*x[i]*sech_f( w*x[i] )*sech_f(w*x[i])
+    #cat( sprintf( "-( %f - tanh( %f * %f ) ) * %f * sech²( %f * %f )\n", y[i], w, x[i], x[i], w, x[i] ) )
+    #print(-( y[i] - tanh_f( w * x[i] ) )*x[i]*sech_f( w*x[i] )*sech_f(w*x[i]))
+  }
+  sum
+}
+
+w_i = c( 1 )
+w_old = 1
+for( i in 1:35 )
+{
+  w_new = w_old - 1 * Gradient( w_old )
+  w_i = c( w_i, w_new )
+  cat( sprintf( "**Iteration**: %d ======> **$w_{%d}$** = %f\\\n", i, i, w_new ) )
+  w_old = w_new
+}
+```
+
+
+```{r fig.cap = cap}
+w_f = w_i[length(w_i)]
+x = seq( -2, 2, .2 )
+y = tanh( 0.673 * x ) + runif( length( x ), min = 0.05, max = 0.1 ) * ifelse( runif( length( x ), 0, 1 ) > 0.5, 1, -1 )
+print( data.frame( list( "x" = x, "y" = y, "neuron" = tanh( w_f * x ), "Diferencia" = y-tanh( w_f * x ) ) ) )
+plot( x, y, col = "red")
+points( x, tanh( w_i[length(w_i)] * x ), col = "blue" )
+#lines( x, tanh( 0.673 * x ), col = "blue" )
+cap = "**En rojo:** función a aproximar; **En azul:** Función aproximada con una neurona"
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
