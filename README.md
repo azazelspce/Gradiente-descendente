@@ -1,1 +1,0 @@
-# Gradiente-descendente
